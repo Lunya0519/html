@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>S급 페트 역산 계산기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .calculator h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .calculator label {
+            display: block;
+            margin-top: 10px;
+        }
+        .calculator input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        .calculator button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .calculator button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            margin-top: 20px;
+            background-color: #e7f3fe;
+            padding: 15px;
+            border-left: 6px solid #2196F3;
+            border-radius: 4px;
+        }
+        .results p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>S급 페트 역산 계산기</h2>
+    <label for="finalHealth">표기체력 (Final Health):</label>
+    <input type="number" id="finalHealth" placeholder="예: 52.39" step="0.01">
+
+    <label for="finalAttack">표기공격력 (Final Attack):</label>
+    <input type="number" id="finalAttack" placeholder="예: 12.64" step="0.01">
+
+    <label for="finalDefense">표기방어력 (Final Defense):</label>
+    <input type="number" id="finalDefense" placeholder="예: 7.49" step="0.01">
+
+    <label for="finalAgility">표기순발력 (Final Agility):</label>
+    <input type="number" id="finalAgility" placeholder="예: 6.37" step="0.01">
+
+    <button onclick="calculate()">계산하기</button>
+
+    <div class="results" id="results" style="display:none;">
+        <h3>계산 결과:</h3>
+        <p id="initialStatCoefficient"></p>
+        <p id="healthCoefficient"></p>
+        <p id="attackCoefficient"></p>
+        <p id="defenseCoefficient"></p>
+        <p id="agilityCoefficient"></p>
+    </div>
+</div>
+
+<script>
+function calculate() {
+    // 입력값 가져오기
+    const finalHealth = parseFloat(document.getElementById('finalHealth').value);
+    const finalAttack = parseFloat(document.getElementById('finalAttack').value);
+    const finalDefense = parseFloat(document.getElementById('finalDefense').value);
+    const finalAgility = parseFloat(document.getElementById('finalAgility').value);
+
+    // 유효성 검사
+    if (isNaN(finalHealth) || isNaN(finalAttack) || isNaN(finalDefense) || isNaN(finalAgility)) {
+        alert("모든 표기스탯을 정확히 입력해주세요.");
+        return;
+    }
+
+    // 결과 초기화
+    let results = [];
+
+    // 초기치 계수 탐색 범위 설정 (예: 10부터 100까지)
+    for (let initialStatCoefficient = 10; initialStatCoefficient <= 100; initialStatCoefficient++) {
+        // 순발력 계수 계산
+        let agilityCoefficient = (finalAgility * 100 / initialStatCoefficient) - 4.5;
+
+        // 순발력 계수가 양수인지 및 소수점 이하가 0.1 이내인지 확인
+        if (agilityCoefficient <= 0) continue;
+
+        // 소수점 이하가 0.1 이내면 정수로 간주
+        if (Math.abs(agilityCoefficient - Math.round(agilityCoefficient)) > 0.1) continue;
+
+        agilityCoefficient = Math.round(agilityCoefficient);
+
+        // 방정식 설정
+        // Equation1:4A + B + C = finalHealth - finalAgility
+        // Equation2:0.1A + B +0.1C=finalAttack -0.05*finalAgility
+        // Equation3:0.1A +0.1B + C=finalDefense -0.05*finalAgility
+
+        const eq1_rhs = finalHealth - finalAgility;
+        const eq2_rhs = finalAttack - (0.05 * finalAgility);
+        const eq3_rhs = finalDefense - (0.05 * finalAgility);
+
+        // 대입법을 사용하여 A, B, C 계산
+        // Equation1: B = eq1_rhs - 4A - C
+        // Equation2:0.1A + B +0.1C=eq2_rhs =>0.1A + (eq1_rhs -4A -C) +0.1C=eq2_rhs =>-3.9A -0.9C = eq2_rhs - eq1_rhs
+        // Equation3:0.1A +0.1B + C=eq3_rhs =>0.1A +0.1*(eq1_rhs -4A - C) + C=eq3_rhs =>0.1A +0.1eq1_rhs -0.4A -0.1C + C=eq3_rhs =>-0.3A +0.9C = eq3_rhs -0.1eq1_rhs
+
+        // Solve the two equations:
+        // -3.9A -0.9C = eq2_rhs - eq1_rhs (Equation4)
+        // -0.3A +0.9C = eq3_rhs -0.1eq1_rhs (Equation5)
+
+        const eq4_rhs = eq2_rhs - eq1_rhs;
+        const eq5_rhs = eq3_rhs - 0.1 * eq1_rhs;
+
+        // Multiply Equation5 by 10 to eliminate decimals
+        const eq5 = {
+            A: -3,
+            C: 9,
+            RHS: eq5_rhs * 10
+        };
+
+        // Multiply Equation4 by 1
+        const eq4 = {
+            A: -3.9,
+            C: -0.9,
+            RHS: eq4_rhs
+        };
+
+        // Now, solve the system:
+        // -3.9A -0.9C = eq4_rhs
+        // -3A +9C = eq5.RHS
+
+        // To eliminate A, multiply Equation1 by (3 / 3.9)
+        const multiplier = 3 / 3.9; // ≈0.7692
+        const eq4_scaled = {
+            A: eq4.A * multiplier, // ≈ -3
+            C: eq4.C * multiplier, // ≈ -0.6923
+            RHS: eq4.RHS * multiplier // ≈ eq4_rhs *0.7692
+        };
+
+        // Now, subtract eq4_scaled from eq5 to eliminate A
+        // (-3A +9C) - (-3A -0.6923C) = eq5.RHS - eq4_scaled.RHS
+        // => 0A +9.6923C = eq5.RHS - eq4_scaled.RHS
+        const C_coeff = 9.6923;
+        const C_rhs = eq5.RHS - eq4_scaled.RHS;
+
+        // Solve for C
+        const C = C_rhs / C_coeff;
+
+        // Now, solve for A using Equation5
+        // -0.3A +0.9C = eq5_rhs
+        const A = (eq5_rhs - 0.9 * C) / -0.3;
+
+        // Solve for B using Equation1
+        const B = eq1_rhs - 4 * A - C;
+
+        // 초기치 스탯이 음수가 아닌지 확인
+        if (A < 0 || B < 0 || C < 0) continue;
+
+        // 속성 계수 계산
+        // 초기치 스탯 = (초기치 계수 * (속성 계수 +4.5))/100
+        // => 속성 계수 = (초기치 스탯 *100 / 초기치 계수) -4.5
+
+        const healthCoefficient = (A * 100 / initialStatCoefficient) - 4.5;
+        const attackCoefficient = (B * 100 / initialStatCoefficient) - 4.5;
+        const defenseCoefficient = (C * 100 / initialStatCoefficient) - 4.5;
+
+        // 소수점 이하가 0.1 이내인 정수인지 확인
+        if (
+            Math.abs(healthCoefficient - Math.round(healthCoefficient)) > 0.1 ||
+            Math.abs(attackCoefficient - Math.round(attackCoefficient)) > 0.1 ||
+            Math.abs(defenseCoefficient - Math.round(defenseCoefficient)) > 0.1
+        ) {
+            continue;
+        }
+
+        // 정수로 반올림
+        const roundedHealthCoeff = Math.round(healthCoefficient);
+        const roundedAttackCoeff = Math.round(attackCoefficient);
+        const roundedDefenseCoeff = Math.round(defenseCoefficient);
+
+        // 초기치 스탯 재계산
+        const recalculatedA = (roundedHealthCoeff + 4.5) * initialStatCoefficient / 100;
+        const recalculatedB = (roundedAttackCoeff + 4.5) * initialStatCoefficient / 100;
+        const recalculatedC = (roundedDefenseCoeff + 4.5) * initialStatCoefficient / 100;
+
+        // 표기스탯 재계산
+        const recalculatedFinalHealth = (recalculatedA * 4) + recalculatedB + recalculatedC + finalAgility;
+        const recalculatedFinalAttack = (recalculatedA * 0.1) + recalculatedB + (recalculatedC * 0.1) + (finalAgility * 0.05);
+        const recalculatedFinalDefense = (recalculatedA * 0.1) + (recalculatedB * 0.1) + recalculatedC + (finalAgility * 0.05);
+
+        // 허용 오차 설정
+        const epsilon = 0.1;
+
+        const isFinalHealthValid = Math.abs(recalculatedFinalHealth - finalHealth) < epsilon;
+        const isFinalAttackValid = Math.abs(recalculatedFinalAttack - finalAttack) < epsilon;
+        const isFinalDefenseValid = Math.abs(recalculatedFinalDefense - finalDefense) < epsilon;
+
+        if (isFinalHealthValid && isFinalAttackValid && isFinalDefenseValid) {
+            results.push({
+                initialStatCoefficient: initialStatCoefficient,
+                healthCoefficient: roundedHealthCoeff,
+                attackCoefficient: roundedAttackCoeff,
+                defenseCoefficient: roundedDefenseCoeff,
+                agilityCoefficient: agilityCoefficient
+            });
+        }
+    }
+
+    // 결과 출력
+    const resultsDiv = document.getElementById('results');
+    const initialStatCoeffP = document.getElementById('initialStatCoefficient');
+    const healthCoeffP = document.getElementById('healthCoefficient');
+    const attackCoeffP = document.getElementById('attackCoefficient');
+    const defenseCoeffP = document.getElementById('defenseCoefficient');
+    const agilityCoeffP = document.getElementById('agilityCoefficient');
+
+    if (results.length === 0) {
+        resultsDiv.style.display = 'block';
+        initialStatCoeffP.innerText = "해당하는 계수를 찾을 수 없습니다.";
+        healthCoeffP.innerText = "";
+        attackCoeffP.innerText = "";
+        defenseCoeffP.innerText = "";
+        agilityCoeffP.innerText = "";
+    } else {
+        // 모든 가능한 결과를 표시
+        let html = "";
+        results.forEach((result, index) => {
+            html += `<h4>결과 ${index + 1}:</h4>`;
+            html += `<p>초기치 계수 (Initial Stat Coefficient): ${result.initialStatCoefficient}</p>`;
+            html += `<p>체력 계수 (Health Coefficient): ${result.healthCoefficient}</p>`;
+            html += `<p>공격력 계수 (Attack Coefficient): ${result.attackCoefficient}</p>`;
+            html += `<p>방어력 계수 (Defense Coefficient): ${result.defenseCoefficient}</p>`;
+            html += `<p>순발력 계수 (Agility Coefficient): ${result.agilityCoefficient}</p>`;
+            html += `<hr>`;
+        });
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = `<h3>계산 결과:</h3>` + html;
+    }
+}
+</script>
+
+</body>
+</html>
