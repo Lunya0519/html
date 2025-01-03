@@ -708,6 +708,94 @@ button:hover {
 
             document.getElementById("loading").style.display = "none";
         });
+            // ---------------------------
+    // (7) 출현 확률 계산 기능 추가
+    // ---------------------------
+    document.getElementById("calculate-btn").addEventListener("click", () => {
+        // 기존 확률 계산 로직이 완료된 후 실행되도록 setTimeout을 사용하여 비동기로 처리
+        setTimeout(() => {
+            // 사용자 입력된 스탯 가져오기
+            const displayHealth = parseInt(document.getElementById("display-health").value, 10);
+            const displayAttack = parseInt(document.getElementById("display-attack").value, 10);
+            const displayDefense = parseInt(document.getElementById("display-defense").value, 10);
+            const displayAgility = parseInt(document.getElementById("display-agility").value, 10);
+            const petName = document.getElementById("pet-name").value.trim();
+
+            // 유효한 페트 이름인지 확인
+            if (!petData.hasOwnProperty(petName)) {
+                // 유효하지 않다면 추가 계산을 하지 않음
+                return;
+            }
+
+            const pet = petData[petName];
+
+            let exactMatchCount = 0;
+            let totalPossibleCases = 0;
+
+            // 가능한 모든 스탯 조합(-2 ~ 2, 보너스 0 ~ 10)
+            for (let healthRandom = -2; healthRandom <= 2; healthRandom++) {
+                for (let attackRandom = -2; attackRandom <= 2; attackRandom++) {
+                    for (let defenseRandom = -2; defenseRandom <= 2; defenseRandom++) {
+                        for (let agilityRandom = -2; agilityRandom <= 2; agilityRandom++) {
+                            for (let healthBonus = 0; healthBonus <= 10; healthBonus++) {
+                                for (let attackBonus = 0; attackBonus <= 10; attackBonus++) {
+                                    for (let defenseBonus = 0; defenseBonus <= 10; defenseBonus++) {
+                                        const agilityBonus = 10 - healthBonus - attackBonus - defenseBonus;
+                                        if (agilityBonus < 0 || agilityBonus > 10) continue;
+
+                                        const baseHealth = pet.healthCoefficient + healthRandom + healthBonus;
+                                        const baseAttack = pet.attackCoefficient + attackRandom + attackBonus;
+                                        const baseDefense = pet.defenseCoefficient + defenseRandom + defenseBonus;
+                                        const baseAgility = pet.agilityCoefficient + agilityRandom + agilityBonus;
+
+                                        const initialHealth = (baseHealth * pet.initialCoefficient) / 100;
+                                        const initialAttack = (baseAttack * pet.initialCoefficient) / 100;
+                                        const initialDefense = (baseDefense * pet.initialCoefficient) / 100;
+                                        const initialAgility = (baseAgility * pet.initialCoefficient) / 100;
+
+                                        const calcHealth = Math.floor(initialHealth * 4 + initialAttack + initialDefense + initialAgility);
+                                        const calcAttack = Math.floor(initialHealth * 0.1 + initialAttack + initialDefense * 0.1 + initialAgility * 0.05);
+                                        const calcDefense = Math.floor(initialHealth * 0.1 + initialAttack * 0.1 + initialDefense + initialAgility * 0.05);
+                                        const calcAgility = Math.floor(initialAgility);
+
+                                        totalPossibleCases++;
+
+                                        if (
+                                            calcHealth === displayHealth &&
+                                            calcAttack === displayAttack &&
+                                            calcDefense === displayDefense &&
+                                            calcAgility === displayAgility
+                                        ) {
+                                            exactMatchCount++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 퍼센트 계산
+            const percentage = totalPossibleCases > 0 ? ((exactMatchCount / totalPossibleCases) * 100).toFixed(2) : "0.00";
+
+            // 결과 창에 퍼센트 추가
+            const resultElement = document.getElementById("result");
+            let percentageResult = document.getElementById("exact-percentage-result");
+
+            if (!percentageResult) {
+                // 퍼센트 결과가 없으면 새로 생성
+                percentageResult = document.createElement("div");
+                percentageResult.id = "exact-percentage-result";
+                percentageResult.style.marginTop = "10px"; // 약간의 여백 추가
+                percentageResult.innerHTML = `출현 확률 : <strong>${percentage}%</strong>`;
+                resultElement.appendChild(percentageResult);
+            } else {
+                // 이미 존재하면 업데이트
+                percentageResult.innerHTML = `출현 확률 : <strong>${percentage}%</strong>`;
+            }
+        }, 500); // 기존 로직이 완료된 후 실행되도록 충분한 지연 시간 설정
+    });
     </script>
 </body>
 </html>
