@@ -855,6 +855,17 @@ button:hover {
             }
         }, 500); // 기존 로직이 완료된 후 실행되도록 충분한 지연 시간 설정
     });
+        document.getElementById("suggestions").addEventListener("click", (event) => {
+    if (event.target && event.target.nodeName.toLowerCase() === "li") {
+        // 결과 영역 초기화
+        document.getElementById("result").textContent = "";
+        
+        // 'exact-percentage-result'가 존재하면 초기화
+        const exactPercentageResult = document.getElementById("exact-percentage-result");
+        if (exactPercentageResult) {
+            exactPercentageResult.textContent = "";
+        }
+    }
     </script>
 </body>
 </html>
