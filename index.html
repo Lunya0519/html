@@ -870,6 +870,78 @@ button:hover {
                 exactPercentageResult.textContent = "";
             }
         }
+            // ---------------------------
+    // (9) 확률 포맷 함수 수정
+    // ---------------------------
+    function formatPercentage(num) {
+        if (num === 0) return "0.0%";
+
+        // 숫자를 문자열로 변환 (소수점 아래 20자리까지)
+        let str = num.toFixed(20);
+
+        // 소수점 위치 찾기
+        let decimalIndex = str.indexOf('.');
+        if (decimalIndex === -1) return str + '%';
+
+        // 소수점 첫 번째 비-제로 자리 찾기
+        let firstNonZero = decimalIndex + 1;
+        while (firstNonZero < str.length && str[firstNonZero] === '0') {
+            firstNonZero++;
+        }
+
+        // 모든 소수점 이하가 0인 경우
+        if (firstNonZero === str.length) return "0.0%";
+
+        // 첫 번째 비-제로 자리와 그 다음 자리 추출
+        let digit = str[firstNonZero];
+        let nextDigit = parseInt(str[firstNonZero + 1]) || 0;
+
+        // 다음 자리에서 반올림
+        if (nextDigit >= 5) {
+            // 해당 자리 숫자 올리기
+            let incremented = (parseInt(digit) + 1).toString();
+
+            // 만약 '9'에서 '10'으로 올리는 경우 처리
+            if (incremented === '10') {
+                // 문자열을 배열로 변환하여 처리
+                let strArr = str.split('');
+                let carry = 1;
+                for (let i = firstNonZero; i > decimalIndex; i--) {
+                    if (strArr[i] === '.') continue;
+                    let newDigit = parseInt(strArr[i]) + carry;
+                    if (newDigit === 10) {
+                        strArr[i] = '0';
+                        carry = 1;
+                    } else {
+                        strArr[i] = newDigit.toString();
+                        carry = 0;
+                        break;
+                    }
+                }
+                // 만약 가장 앞자리까지 캐리가 발생하면 '1' 추가
+                if (carry === 1) {
+                    strArr.unshift('1');
+                    decimalIndex++; // 소수점 위치도 한 칸 이동
+                }
+                str = strArr.join('');
+                digit = str[firstNonZero];
+            } else {
+                // 단순히 자리 올리기
+                str = str.slice(0, firstNonZero) + incremented + str.slice(firstNonZero + 1);
+            }
+        }
+
+        // 첫 번째 비-제로 자리까지 자르기
+        let formatted = str.slice(0, firstNonZero + 1) + '%';
+        return formatted;
+    }
+
+    // ---------------------------
+    // (10) 확률 계산 버튼 클릭 시 포맷 함수 적용
+    // ---------------------------
+    // 기존의 calculate 버튼 클릭 이벤트 리스너 내에서
+    // formatPercentage 함수를 사용하는 부분은 그대로 유지됩니다.
+    // 추가적인 수정은 필요하지 않습니다.
     });
     </script>
 </body>
