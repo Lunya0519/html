@@ -943,6 +943,42 @@ button:hover {
     // formatPercentage 함수를 사용하는 부분은 그대로 유지됩니다.
     // 추가적인 수정은 필요하지 않습니다.
     });
+        
+// ---------------------------
+// (추가 기능) 표기 스탯 입력란 미리보기 기능 (정수 단위 표시)
+// ---------------------------
+document.querySelectorAll('#display-health, #display-attack, #display-defense, #display-agility').forEach((inputField) => {
+    inputField.addEventListener('input', () => {
+        const petName = document.getElementById('pet-name').value.trim(); // 선택된 페트 이름
+
+        // 페트 이름이 선택된 상태에서만 작동
+        if (petName && petData[petName]) {
+            const idealStats = calculateIdealStats(petData[petName]); // 정석 스탯 계산
+
+            // 입력란이 비어있는 경우
+            if (inputField.value === "") {
+                // 각 입력란에 맞는 정석 스탯을 placeholder에 정수 단위로 표시
+                inputField.placeholder = (() => {
+                    switch (inputField.id) {
+                        case 'display-health': return Math.round(idealStats.displayHealth).toString();
+                        case 'display-attack': return Math.round(idealStats.displayAttack).toString();
+                        case 'display-defense': return Math.round(idealStats.displayDefense).toString();
+                        case 'display-agility': return Math.round(idealStats.displayAgility).toString();
+                    }
+                })();
+            } else {
+                // 입력된 값이 있을 경우 placeholder를 제거
+                inputField.placeholder = "";
+            }
+        } else {
+            // 페트 이름이 없을 경우 placeholder 제거
+            inputField.placeholder = "";
+        }
+    });
+
+    // 페이지 로드 시에도 초기 상태로 미리보기 적용
+    inputField.dispatchEvent(new Event('input'));
+});
     </script>
 </body>
 </html>
