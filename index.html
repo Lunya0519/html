@@ -1011,7 +1011,7 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
                 averageAttemptsElement.id = "average-attempts";
                 averageAttemptsElement.style.marginTop = "10px"; // 간격 추가
                 averageAttemptsElement.style.fontSize = "16px";
-                averageAttemptsElement.innerHTML = `평균 성공 횟수 : <strong>${averageAttempts}번</strong>`;
+                averageAttemptsElement.innerHTML = `평균 성공 횟수 : <strong>${averageAttempts === 'ㅠㅠ' ? 'ㅠㅠ' : averageAttempts + '번'}</strong>`;
                 resultElement.insertBefore(averageAttemptsElement, resultElement.querySelector("#exact-percentage-result"));
             } else {
                 // 기존 요소가 있다면 내용 업데이트
