@@ -711,7 +711,7 @@ button:hover {
             } else {
                 const probability = ((hallucinationCases / totalMatchedCases) * 100).toFixed(2);
                 document.getElementById("result").innerHTML =
-                    `페트가 최소 A+ 이상으로 클 확률 : <strong>${probability}%</strong>`;
+                    `성광 확률 : <strong>${probability}%</strong>`;
             }
 
             document.getElementById("loading").style.display = "none";
@@ -985,6 +985,40 @@ document.querySelectorAll('#display-health, #display-attack, #display-defense, #
 
     // 페이지 로드 시에도 초기 상태로 미리보기 적용
     inputField.dispatchEvent(new Event('input'));
+});
+// ---------------------------
+// (추가) 평균 성공 시행 횟수 추가 (반올림하여 정수로 표시)
+// ---------------------------
+document.getElementById("calculate-btn").addEventListener("click", () => {
+    // 기존 계산 로직이 완료된 후 실행되도록 setTimeout을 사용하여 비동기로 처리
+    setTimeout(() => {
+        const resultElement = document.getElementById("result");
+        const probabilityElement = document.querySelector("#result strong"); // 확률 요소 선택
+
+        if (probabilityElement) {
+            // 확률 값 추출 (소수점 형태로 변환)
+            const probabilityText = probabilityElement.textContent.replace('%', '');
+            const probability = parseFloat(probabilityText) / 100;
+
+            // 평균 성공 시행 값 계산 (반올림하여 정수로 표시)
+            const averageAttempts = probability > 0 ? Math.round(1 / probability) : "ㅠㅠ";
+
+            // 평균 성공 시행 텍스트 추가
+            let averageAttemptsElement = document.getElementById("average-attempts");
+            if (!averageAttemptsElement) {
+                // 기존 요소가 없다면 생성
+                averageAttemptsElement = document.createElement("div");
+                averageAttemptsElement.id = "average-attempts";
+                averageAttemptsElement.style.marginTop = "10px"; // 간격 추가
+                averageAttemptsElement.style.fontSize = "16px";
+                averageAttemptsElement.innerHTML = `평균 성공 횟수 : <strong>${averageAttempts}번</strong>`;
+                resultElement.insertBefore(averageAttemptsElement, resultElement.querySelector("#exact-percentage-result"));
+            } else {
+                // 기존 요소가 있다면 내용 업데이트
+                averageAttemptsElement.innerHTML = `평균 성공 횟수 : <strong>${averageAttempts}번</strong>`;
+            }
+        }
+    }, 500); // 기존 로직이 완료된 후 실행되도록 충분한 지연 시간 설정
 });
     </script>
 </body>
