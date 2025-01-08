@@ -1015,7 +1015,7 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
                 resultElement.insertBefore(averageAttemptsElement, resultElement.querySelector("#exact-percentage-result"));
             } else {
                 // 기존 요소가 있다면 내용 업데이트
-                averageAttemptsElement.innerHTML = `평균 성공 횟수 : <strong>${averageAttempts}번</strong>`;
+                averageAttemptsElement.innerHTML = `성공 시행 : <strong>${averageAttempts}번</strong>`;
             }
         }
     }, 500); // 기존 로직이 완료된 후 실행되도록 충분한 지연 시간 설정
