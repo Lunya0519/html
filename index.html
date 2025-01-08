@@ -1001,7 +1001,7 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
             const probability = parseFloat(probabilityText) / 100;
 
             // 평균 성공 시행 값 계산 (반올림하여 정수로 표시)
-            const averageAttempts = probability > 0 ? Math.round(1 / probability) : "ㅠㅠ";
+            const averageAttempts = probability > 0 ? (1 / probability).toFixed(2) : "ㅠㅠ";
 
             // 평균 성공 시행 텍스트 추가
             let averageAttemptsElement = document.getElementById("average-attempts");
