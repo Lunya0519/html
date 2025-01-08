@@ -716,6 +716,34 @@ button:hover {
 
             document.getElementById("loading").style.display = "none";
         });
+        document.getElementById("calculate-btn").addEventListener("click", () => {
+    // 기존 로딩 표시, 입력값 검증, 확률 계산 로직 (수정 없음)
+
+    const totalMatchedCases = totalCases.length;
+    if (totalMatchedCases === 0) {
+        document.getElementById("result").textContent = "다른 값으로 시도해 보세요! 아마 안잡히는 스탯일걸요 !?";
+    } else {
+        const probability = ((hallucinationCases / totalMatchedCases) * 100).toFixed(2);
+        document.getElementById("result").innerHTML =
+            `페트가 최소 A+ 이상으로 클 확률 : <strong>${probability}%</strong>`;
+
+        // ---------------------------
+        // 평균 성공 시도 횟수 계산 추가
+        // ---------------------------
+        const successProbability = hallucinationCases / totalMatchedCases;
+        const averageTrials =
+            successProbability > 0 ? (1 / successProbability).toFixed(2) : "ㅠㅠ";
+
+        // 평균 성공 시도 횟수 결과 추가
+        const averageTrialsElement = document.createElement("div");
+        averageTrialsElement.id = "average-trials-result";
+        averageTrialsElement.innerHTML = `평균 성공 마리수: <strong>${averageTrials}</strong>`;
+        document.getElementById("result").appendChild(averageTrialsElement);
+    }
+
+    document.getElementById("loading").style.display = "none";
+});
+
 
     // ---------------------------
     // (7) 입력한 정수 단위 표기 스탯의 발생 확률 계산 기능 추가
