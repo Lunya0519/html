@@ -827,9 +827,10 @@ button:hover {
             if (totalMatchedCases === 0) {
                 document.getElementById("result").textContent = "다른 값으로 시도해 보세요! 아마 안잡히는 스탯일걸요 !?";
             } else {
-                const probability = ((hallucinationCases / totalMatchedCases) * 100).toFixed(2);
-                document.getElementById("result").innerHTML =
-                    `성공 확률 : <strong>${probability}%</strong>`;
+const probability = ((hallucinationCases / totalMatchedCases) * 100).toFixed(2);
+const displayProbability = probability === "100.00" ? "99.9" : probability; // 100%면 99.9%로 변경
+document.getElementById("result").innerHTML =
+    `성공 확률 : <strong>${displayProbability}%</strong>`;
             }
 
             document.getElementById("loading").style.display = "none";
