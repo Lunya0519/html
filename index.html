@@ -279,11 +279,15 @@ button:hover {
         <!-- Busuanzi 방문자 수 집계 -->
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<!-- 방문자 수 출력 -->
-<div style="text-align: center; margin-top: 30px; font-size: 14px; color: #444;">
-  👣 오늘 방문자 수: <span id="busuanzi_value_day_visits">로딩중...</span><br>
-  📊 총 방문자 수: <span id="busuanzi_value_site_visits">로딩중...</span>
-</div>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZJ8TSD47V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RZJ8TSD47V');
+</script>
     </div>
 
     <script>
